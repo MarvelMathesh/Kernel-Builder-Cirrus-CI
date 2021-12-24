@@ -1,6 +1,6 @@
 env:
     KT_LINK: "https://github.com/MarvelMathesh/MK-4.9-WIP"
-    KT_BRANCH: "land-test-3"
+    KT_BRANCH: "land-test-1"
     TG_TOKEN: "ENCRYPTED[3c532740ad076565affa0d55bb47c6393e6a7a6ee424c8461e93d0b2e27cfad404b29cbe45ecb18f57c555e07d598d01]"
     TG_CHAT_ID: "ENCRYPTED[c65f8eba12b8dc6de21248d207cc27feb0ced3fe8455a9a227142867b2ed9972442fde6ac2216d4dcd95a4ac1b5679c6]"
     TZ: "Asia/Kolkata"
