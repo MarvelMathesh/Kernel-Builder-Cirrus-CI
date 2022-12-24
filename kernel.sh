@@ -15,8 +15,71 @@ ccache -M 10G
 ccache -o compression=true
 ccache -z
 
-cd /tmp
-bash build-kernel.sh
+set -e
+
+function message() {
+    echo -e "\e[1;32m$*\e[0m"
+}
+
+ROOT=$(pwd)
+ZIPNAME=M23-Kernel-Mrsiri-$(date +"%F")
+MAKE_FLAGS=(
+    CROSS_COMPILE=aarch64-elf-
+    CROSS_COMPILE_ARM32=arm-eabi-
+)
+JOBS=$(nproc --all)
+
+export PATH=$ROOT/arm64-gcc/bin:$ROOT/arm-gcc/bin:$PATH
+export KBUILD_BUILD_USER=mrsiri
+export KBUILD_BUILD_HOST=mrsiri
+
+function clone() {
+    message "Cloning dependencies..."
+    if ! [ -a AnyKernel3 ]; then
+        git clone --depth=1 https://github.com/MarvelMathesh/AnyKernel3 -b land AnyKernel3
+    fi
+    if ! [ -a arm64-gcc ]; then
+        git clone --depth=1 https://github.com/nbr-project/arm64-gcc -b master arm64-gcc
+    fi
+    if ! [ -a arm-gcc ]; then
+        git clone --depth=1 https://github.com/nbr-project/arm-gcc -b master arm-gcc
+    fi
+}
+
+function compile() {
+    message "Compiling kernel..."
+    if [ -a out ]; then
+        rm -rf out
+    fi
+    make O=out ARCH=arm64 vendor/m23xq_eur_open_defconfig_defconfig -j"$JOBS" \
+        "${MAKE_FLAGS[@]}"
+    make O=out ARCH=arm64 -j"$JOBS" \
+        "${MAKE_FLAGS[@]}"
+}
+
+function repack() {
+    message "Repacking kernel..."
+    if ! [ -a AnyKernel3/Image.gz-dtb ]; then
+        cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3
+    fi
+    cd AnyKernel3
+    if [ -a "${ZIPNAME}".zip ]; then
+        rm -rf "${ZIPNAME}".zip
+    fi
+    zip -r9 "${ZIPNAME}".zip ./* -x .git README.md ./*placeholder zipsigner-3.0.jar
+    if [ -a Image.gz-dtb ]; then
+        rm -rf Image.gz-dtb
+    fi
+    if [ -a "${ZIPNAME}"-signed.zip ]; then
+        rm -rf "${ZIPNAME}"-signed.zip
+    fi
+    java -jar zipsigner-3.0.jar "${ZIPNAME}".zip "${ZIPNAME}"-signed.zip
+    cd "$ROOT"
+}
+
+clone
+compile
+repack
 
 cd AnyKernel3
 export kernel=$(ls *.zip)
