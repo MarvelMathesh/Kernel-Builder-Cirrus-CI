@@ -41,6 +41,7 @@ function compile() {
     if [ -a out ]; then
         rm -rf out
     fi
+    export ARCH=arm64
     export ANDROID_MAJOR_VERSION=r
     export BUILD_CROSS_COMPILE=$(pwd)/compiler/bin/aarch64-linux-android-
     export KERNEL_LLVM_BIN=$(pwd)/linux-x86/clang-r416183b/bin/
