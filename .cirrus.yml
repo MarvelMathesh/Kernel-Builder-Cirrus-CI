@@ -7,7 +7,7 @@ env:
 
 task:
   name: "Kernel-Builder"
-  timeout_in: 999999m  
+  timeout_in: 99999m  
   container:
       image: marvelmathesh/docker:rom
       cpu: 8
