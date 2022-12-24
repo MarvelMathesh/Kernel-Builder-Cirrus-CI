@@ -7,7 +7,7 @@ function message() {
 }
 
 ROOT=$(pwd)
-ZIPNAME=Marvel-Kernel-4.9-land-$(date +"%F")
+ZIPNAME=M23-Kernel-Mrsiri-$(date +"%F")
 MAKE_FLAGS=(
     CROSS_COMPILE=aarch64-elf-
     CROSS_COMPILE_ARM32=arm-eabi-
@@ -15,8 +15,8 @@ MAKE_FLAGS=(
 JOBS=$(nproc --all)
 
 export PATH=$ROOT/arm64-gcc/bin:$ROOT/arm-gcc/bin:$PATH
-export KBUILD_BUILD_USER=Mathesh
-export KBUILD_BUILD_HOST=Marvel
+export KBUILD_BUILD_USER=mrsiri
+export KBUILD_BUILD_HOST=mrsiri
 
 function clone() {
     message "Cloning dependencies..."
@@ -36,7 +36,7 @@ function compile() {
     if [ -a out ]; then
         rm -rf out
     fi
-    make O=out ARCH=arm64 land_defconfig -j"$JOBS" \
+    make O=out ARCH=arm64 vendor/m23xq_eur_open_defconfig_defconfig -j"$JOBS" \
         "${MAKE_FLAGS[@]}"
     make O=out ARCH=arm64 -j"$JOBS" \
         "${MAKE_FLAGS[@]}"
