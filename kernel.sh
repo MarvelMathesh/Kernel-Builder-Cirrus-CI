@@ -15,6 +15,7 @@ ccache -M 10G
 ccache -o compression=true
 ccache -z
 
+cd /tmp
 bash build-kernel.sh
 
 cd AnyKernel3
