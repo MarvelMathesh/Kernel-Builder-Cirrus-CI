@@ -15,35 +15,28 @@ ccache -M 10G
 ccache -o compression=true
 ccache -z
 
-set -e
-
-function message() {
-    echo -e "\e[1;32m$*\e[0m"
-}
-
-ROOT=$(pwd)
-ZIPNAME=M23-Kernel-Mrsiri-$(date +"%F")
-MAKE_FLAGS=(
-    CROSS_COMPILE=aarch64-elf-
-    CROSS_COMPILE_ARM32=arm-eabi-
-)
+export ROOT=$(pwd)
+export ZIPNAME=M23-Kernel-Mrsiri-$(date +"%F")
+export MAKE_FLAGS=(
+        CROSS_COMPILE=aarch64-elf-
+        CROSS_COMPILE_ARM32=arm-eabi-
+        )
 JOBS=$(nproc --all)
 
-export PATH=$ROOT/arm64-gcc/bin:$ROOT/arm-gcc/bin:$PATH
-export KBUILD_BUILD_USER=mrsiri
-export KBUILD_BUILD_HOST=mrsiri
+export KERNEL_MAKE_ENV="DTC_EXT=$(pwd)/tools/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y"
 
 function clone() {
     message "Cloning dependencies..."
     if ! [ -a AnyKernel3 ]; then
         git clone --depth=1 https://github.com/MarvelMathesh/AnyKernel3 -b land AnyKernel3
     fi
-    if ! [ -a arm64-gcc ]; then
-        git clone --depth=1 https://github.com/nbr-project/arm64-gcc -b master arm64-gcc
+    if ! [ -a clang ]; then
+        git clone --depth=1 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release
     fi
-    if ! [ -a arm-gcc ]; then
-        git clone --depth=1 https://github.com/nbr-project/arm-gcc -b master arm-gcc
+    if ! [ -a clang ]; then
+        git clone --depth=1 https://github.com/physwizz/compiler compiler
     fi
+    https://github.com/physwizz/compiler
 }
 
 function compile() {
@@ -51,9 +44,13 @@ function compile() {
     if [ -a out ]; then
         rm -rf out
     fi
-    make O=out ARCH=arm64 vendor/m23xq_eur_open_defconfig_defconfig -j"$JOBS" \
+    make clean && make mrproper
+    export ANDROID_MAJOR_VERSION=r
+    export CROSS_COMPILE=/compiler/bin/aarch64-linux-android-
+    export KERNEL_LLVM_BIN=/linux-x86/clang-r416183b/bin/
+    make -C $(pwd) O=out $KERNEL_MAKE_ENV REAL_CC=$KERNEL_LLVM_BIN KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y vendor/m23xq_eur_open_defconfig -j"$JOBS" \
         "${MAKE_FLAGS[@]}"
-    make O=out ARCH=arm64 -j"$JOBS" \
+    make -C $(pwd) O=out $KERNEL_MAKE_ENV REAL_CC=$KERNEL_LLVM_BIN KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y -j"$JOBS" \
         "${MAKE_FLAGS[@]}"
 }
 
