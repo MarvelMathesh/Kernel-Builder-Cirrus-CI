@@ -43,7 +43,7 @@ function compile() {
     fi
     export ARCH=arm64
     export ANDROID_MAJOR_VERSION=r
-    export CROSS_COMPILE=$(pwd)/compiler/bin/aarch64-linux-android-
+    export BUILD_CROSS_COMPILE=$(pwd)/compiler/bin/aarch64-linux-android-
     make -C $(pwd) O=out $KERNEL_MAKE_ENV REAL_CC=$KERNEL_LLVM_BIN KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y vendor/m23xq_eur_open_defconfig -j"$JOBS" \
         "${MAKE_FLAGS[@]}"
     make -C $(pwd) O=out $KERNEL_MAKE_ENV REAL_CC=$KERNEL_LLVM_BIN KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y -j"$JOBS" \
